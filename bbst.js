@@ -51,9 +51,11 @@ function Tree(inputArray) {
     root.setRightChild(buildTree(rightArray));
     return root;
   }
+
   let root = buildTree(sorted);
   const getRoot = () => root;
-  const insert = (value, node = root) => {
+
+  function insert(value, node = root) {
     // cache the node value since it will be used a few times
     const nodeValue = node.getValue();
     if (nodeValue === value) return;
@@ -71,9 +73,9 @@ function Tree(inputArray) {
         insert(value, node.getRightChild());
       }
     }
-  };
+  }
 
-  const find = (value, node = root) => {
+  function find(value, node = root) {
     const nodeValue = node.getValue();
     if (nodeValue === value) {
       return node;
@@ -89,8 +91,9 @@ function Tree(inputArray) {
       }
     }
     return null;
-  };
-  const findWithParent = (value, node = root) => {
+  }
+
+  function findWithParent(value, node = root) {
     if (node === root && node.getValue() === value) {
       return { found: root, parent: null, childIsLeft: null };
     }
@@ -111,15 +114,17 @@ function Tree(inputArray) {
       return { found: node.getRightChild(), parent: node, childIsLeft: false};
     }
     return findWithParent(value, node.getRightChild());
-  };
-  const getNextSmallest = (node) => {
+  }
+
+  function getNextSmallest(node) {
     let smallest = node.getRightChild();
     while (smallest.hasLeftChild()) {
       smallest = smallest.getLeftChild();
     }
     return smallest;
-  };
-  const remove = (value) => {
+  }
+
+  function remove(value) {
     const target = findWithParent(value);
     if (target === null) {
       return;
@@ -164,36 +169,72 @@ function Tree(inputArray) {
       nextSmallest.setLeftChild(toDelete.getLeftChild());
       nextSmallest.setRightChild(toDelete.getRightChild());
     }
-  };
-  const levelOrder = (nodeFunction, node = root) => nodeFunction;
-  const inorder = (nodeFunction, node = root) => {
+  }
+
+  function levelOrder(nodeFunction = null, node = root) {
+    // if running into performance issues, might need to implement a new queue object
+    // rather than using shift which I think is O(n)
+    const queue = [node];
+    const array = [];
+    while (queue.length > 0) {
+      const nextItem = queue.shift();
+      if (nextItem.hasLeftChild()) {
+        queue.push(nextItem.getLeftChild());
+      }
+      if (nextItem.hasRightChild()) {
+        queue.push(nextItem.getRightChild());
+      }
+      if (nodeFunction !== null) {
+        nodeFunction(nextItem);
+      }
+      array.push(nextItem.getValue());
+    }
+    return array;
+  }
+
+  function inorder(nodeFunction = null, array = [], node = root) {
     if (node.hasLeftChild()) {
-      inorder(nodeFunction, node.getLeftChild());
+      inorder(nodeFunction, array, node.getLeftChild());
     }
-    nodeFunction(node);
+    if (nodeFunction !== null) {
+      nodeFunction(node);
+    }
+    array.push(node.getValue());
     if (node.hasRightChild()) {
-      inorder(nodeFunction, node.getRightChild());
+      inorder(nodeFunction, array, node.getRightChild());
     }
-  };
-  const preorder = (nodeFunction, node = root) => {
-    nodeFunction(node);
+    return array;
+  }
+
+  function preorder(nodeFunction = null, array = [], node = root) {
+    if (nodeFunction !== null) {
+      nodeFunction(node);
+    }
+    array.push(node.getValue());
     if (node.hasLeftChild()) {
-      preorder(nodeFunction, node.getLeftChild());
+      preorder(nodeFunction, array, node.getLeftChild());
     }
     if (node.hasRightChild()) {
-      preorder(nodeFunction, node.getRightChild());
+      preorder(nodeFunction, array, node.getRightChild());
     }
-  };
-  const postorder = (nodeFunction, node = root) => {
+    return array;
+  }
+
+  function postorder(nodeFunction = null, array = [], node = root) {
     if (node.hasLeftChild()) {
-      postorder(nodeFunction, node.getLeftChild());
+      postorder(nodeFunction, array, node.getLeftChild());
     }
     if (node.hasRightChild()) {
-      postorder(nodeFunction, node.getRightChild());
+      postorder(nodeFunction, array, node.getRightChild());
     }
-    nodeFunction(node);
-  };
-  const height = (node) => {
+    if (nodeFunction !== null) {
+      nodeFunction(node);
+    }
+    array.push(node.getValue());
+    return array;
+  }
+
+  function height(node) {
     if (!node.hasChildren()) {
       return 0;
     }
@@ -204,8 +245,9 @@ function Tree(inputArray) {
       return 1 + height(node.getLeftChild());
     }
     return 1 + Math.max(height(node.getLeftChild()), height(node.getRightChild()));
-  };
-  const depth = (node) => {
+  }
+
+  function depth(node) {
     let sum = 0;
     const nodeValue = node.getValue();
     let currentNode = root;
@@ -224,8 +266,9 @@ function Tree(inputArray) {
       sum += 1;
     }
     return sum;
-  };
-  const isBalanced = (node = root) => {
+  }
+
+  function isBalanced(node = root) {
     if (!node.hasRightChild() && node.hasLeftChild()) {
       if (height(node.getLeftChild()) > 1) {
         return false;
@@ -254,13 +297,15 @@ function Tree(inputArray) {
       }
     }
     return true;
-  };
-  const rebalance = () => {
+  }
+
+  function rebalance() {
     const newArray = [];
     inorder((node) => { newArray.push(node.getValue()); });
     root = buildTree(newArray);
-  };
-  const prettyPrint = (node = root, prefix = '', isLeft = true) => {
+  }
+
+  function prettyPrint(node = root, prefix = '', isLeft = true) {
     if (node === null) {
       return;
     }
@@ -272,7 +317,8 @@ function Tree(inputArray) {
     if (node.hasLeftChild()) {
       prettyPrint(node.getLeftChild(), `${prefix}${isLeft ? '    ' : '│   '}`, true);
     }
-  };
+  }
+
   return {
     getRoot,
     insert,
@@ -300,7 +346,7 @@ console.log(testTree.isBalanced());
 testTree.insert(8);
 testTree.insert(12);
 testTree.prettyPrint();
-console.log(testTree.isBalanced());
-testTree.rebalance();
-testTree.prettyPrint();
-console.log(testTree.isBalanced());
+console.log(testTree.inorder());
+console.log(testTree.levelOrder());
+console.log(testTree.postorder());
+console.log(testTree.preorder());
