@@ -90,23 +90,82 @@ function Tree(inputArray) {
     }
     return null;
   };
-
-  /*
-  const remove = (value) => {
-    const toDelete = find(value);
-    if (toDelete.hasChildren()) {
-      toDelete.findParent(root)
+  const findWithParent = (value, node = root) => {
+    if (node === root && node.getValue() === value) {
+      return { found: root, parent: null, childIsLeft: null };
     }
-    if node has no children, then replace with null
-
-    if node has one child, then find parent and set the parent to look to this node's child
-
-    if node has two children, then find the smallest node on the left of the right hand tree, set that to this node's parent, give it this node's children, and remove(that node)
-    
-    return;
-  }
-  */
-
+    if (node.getValue() > value) {
+      if (!node.hasLeftChild()) {
+        return null;
+      }
+      if (node.getLeftChild().getValue() === value) {
+        return { found: node.getLeftChild(), parent: node, childIsLeft: true};
+      }
+      return findWithParent(value, node.getLeftChild());
+    }
+    // must therefore be right hand side - no need for extra if
+    if (!node.hasRightChild()) {
+      return null;
+    }
+    if (node.getRightChild().getValue() === value) {
+      return { found: node.getRightChild(), parent: node, childIsLeft: false};
+    }
+    return findWithParent(value, node.getRightChild());
+  };
+  const getNextSmallest = (node) => {
+    let smallest = node.getRightChild();
+    //console.log(smallest.getValue());
+    while (smallest.hasLeftChild()) {
+      smallest = smallest.getLeftChild();
+    }
+    return smallest;
+  };
+  const remove = (value) => {
+    const target = findWithParent(value);
+    if (target === null) {
+      return;
+    }
+    const toDelete = target.found;
+    const parentOfToDelete = target.parent;
+    const { childIsLeft } = target;
+    // if node has no children, can just remove
+    if (!toDelete.hasChildren()) {
+      if (childIsLeft) {
+        parentOfToDelete.setLeftChild(null);
+      } else {
+        parentOfToDelete.setRightChild(null);
+      }
+    }
+    // if node has one child, can just add directly to parent
+    if (toDelete.hasLeftChild() && !toDelete.hasRightChild()) {
+      if (childIsLeft) {
+        parentOfToDelete.setLeftChild(toDelete.getLeftChild());
+      }
+      if (!childIsLeft) {
+        parentOfToDelete.setRightChild(toDelete.getLeftChild());
+      }
+    }
+    if (toDelete.hasRightChild() && !toDelete.hasLeftChild()) {
+      if (childIsLeft) {
+        parentOfToDelete.setLeftChild(toDelete.getRightChild());
+      }
+      if (!childIsLeft) {
+        parentOfToDelete.setRightChild(toDelete.getRightChild());
+      }
+    }
+    // if node has two children, then find smallest on the rhs and set to move in as replacement
+    if (toDelete.hasLeftChild() && toDelete.hasRightChild()) {
+      const nextSmallest = getNextSmallest(toDelete);
+      remove(nextSmallest.getValue());
+      if (childIsLeft) {
+        parentOfToDelete.setLeftChild(nextSmallest);
+      } else {
+        parentOfToDelete.setRightChild(nextSmallest);
+      }
+      nextSmallest.setLeftChild(toDelete.getLeftChild());
+      nextSmallest.setRightChild(toDelete.getRightChild());
+    }
+  };
 
   const levelOrder = (nodeFunction = null) => nodeFunction;
   const inorder = (nodeFunction = null) => nodeFunction;
@@ -132,7 +191,9 @@ function Tree(inputArray) {
   return {
     getRoot,
     insert,
+    remove,
     find,
+    findWithParent,
     levelOrder,
     inorder,
     preorder,
@@ -145,14 +206,24 @@ function Tree(inputArray) {
   };
 }
 
-const testArray = [0, 3, 2, 1, 4, 3, 7, 6, 5, 11]
+const testArray = [0, 3, 2, 1, 4, 3, 7, 6, 5, 11];
 const testTree = Tree(testArray);
 testTree.prettyPrint();
 testTree.insert(21);
+testTree.insert(22);
+testTree.insert(20);
+testTree.insert(19);
 testTree.insert(8);
 testTree.insert(8);
 testTree.insert(10);
 testTree.insert(9);
+testTree.remove(2);
+testTree.remove(3);
+testTree.remove(7);
+testTree.remove(11);
+testTree.remove(999);
+// eslint-disable-next-line no-console
+console.log('\nAfter ammendments:\n');
 testTree.prettyPrint();
 // eslint-disable-next-line no-console
 console.log(testTree.find(9).getValue());
