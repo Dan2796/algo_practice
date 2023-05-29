@@ -51,7 +51,7 @@ function Tree(inputArray) {
     root.setRightChild(buildTree(rightArray));
     return root;
   }
-  const root = buildTree(sorted);
+  let root = buildTree(sorted);
   const getRoot = () => root;
   const insert = (value, node = root) => {
     // cache the node value since it will be used a few times
@@ -225,8 +225,41 @@ function Tree(inputArray) {
     }
     return sum;
   };
-  const isBalanced = () => true;
-  const rebalance = () => true;
+  const isBalanced = (node = root) => {
+    if (!node.hasRightChild() && node.hasLeftChild()) {
+      if (height(node.getLeftChild()) > 1) {
+        return false;
+      }
+      if (!isBalanced(node.getLeftChild())) {
+        return false;
+      }
+    }
+    if (!node.hasLeftChild() && node.hasRightChild()) {
+      if (height(node.getRightChild()) > 1) {
+        return false;
+      }
+      if (!isBalanced(node.getRightChild())) {
+        return false;
+      }
+    }
+    if (node.hasLeftChild() && node.hasRightChild()) {
+      if ((height(node.getLeftChild()) - height(node.getRightChild()) > 1)) {
+        return false;
+      }
+      if (!isBalanced(node.getLeftChild())) {
+        return false;
+      }
+      if (!isBalanced(node.getRightChild())) {
+        return false;
+      }
+    }
+    return true;
+  };
+  const rebalance = () => {
+    const newArray = [];
+    inorder((node) => { newArray.push(node.getValue()); });
+    root = buildTree(newArray);
+  };
   const prettyPrint = (node = root, prefix = '', isLeft = true) => {
     if (node === null) {
       return;
@@ -263,3 +296,11 @@ function Tree(inputArray) {
 const testArray = [0, 3, 2, 5, 1, 4, 3, 7, 6, 11];
 const testTree = Tree(testArray);
 testTree.prettyPrint();
+console.log(testTree.isBalanced());
+testTree.insert(8);
+testTree.insert(12);
+testTree.prettyPrint();
+console.log(testTree.isBalanced());
+testTree.rebalance();
+testTree.prettyPrint();
+console.log(testTree.isBalanced());
