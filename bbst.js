@@ -337,16 +337,46 @@ function Tree(inputArray) {
   };
 }
 
-// Testing:
+// Testing
 /* eslint-disable no-console */
-const testArray = [0, 3, 2, 5, 1, 4, 3, 7, 6, 11];
+const randomArray = (length = 22) => {
+  const array = [];
+  for (let i = 0; i <= length; i += 1) {
+    array.push(Math.floor(Math.random() * 100));
+  }
+  return array;
+};
+const testArray = randomArray();
 const testTree = Tree(testArray);
+console.log('Random tree created:');
 testTree.prettyPrint();
+console.log('Is it balanced?');
 console.log(testTree.isBalanced());
-testTree.insert(8);
-testTree.insert(12);
-testTree.prettyPrint();
-console.log(testTree.inorder());
+console.log('Level order:');
 console.log(testTree.levelOrder());
-console.log(testTree.postorder());
+console.log('Inorder:');
+console.log(testTree.inorder());
+console.log('Preorder:');
 console.log(testTree.preorder());
+console.log('Postorder:');
+console.log(testTree.postorder());
+for (let i = 0; i <= 10; i += 1) {
+  testTree.insert(Math.floor(100 + Math.random() * 100));
+}
+console.log('Now with added numbers:');
+testTree.prettyPrint();
+console.log('Still balanced?');
+console.log(testTree.isBalanced());
+testTree.rebalance();
+console.log('Have rebalanced:');
+testTree.prettyPrint();
+console.log('Now balanced?');
+console.log(testTree.isBalanced());
+console.log('Level order:');
+console.log(testTree.levelOrder());
+console.log('Inorder:');
+console.log(testTree.inorder());
+console.log('Preorder:');
+console.log(testTree.preorder());
+console.log('Postorder:');
+console.log(testTree.postorder());
