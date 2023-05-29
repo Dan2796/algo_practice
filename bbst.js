@@ -193,8 +193,38 @@ function Tree(inputArray) {
     }
     nodeFunction(node);
   };
-  const height = (node) => node;
-  const depth = (node) => node;
+  const height = (node) => {
+    if (!node.hasChildren()) {
+      return 0;
+    }
+    if (!node.hasLeftChild()) {
+      return 1 + height(node.getRightChild());
+    }
+    if (!node.hasRightChild()) {
+      return 1 + height(node.getLeftChild());
+    }
+    return 1 + Math.max(height(node.getLeftChild()), height(node.getRightChild()));
+  };
+  const depth = (node) => {
+    let sum = 0;
+    const nodeValue = node.getValue();
+    let currentNode = root;
+    while (nodeValue !== currentNode.getValue()) {
+      if (nodeValue < currentNode.getValue()) {
+        if (!currentNode.hasLeftChild()) {
+          return null;
+        }
+        currentNode = currentNode.getLeftChild();
+      } else if (nodeValue > currentNode.getValue()) {
+        if (!currentNode.hasRightChild()) {
+          return null;
+        }
+        currentNode = currentNode.getRightChild();
+      }
+      sum += 1;
+    }
+    return sum;
+  };
   const isBalanced = () => true;
   const rebalance = () => true;
   const prettyPrint = (node = root, prefix = '', isLeft = true) => {
@@ -230,39 +260,6 @@ function Tree(inputArray) {
 
 // Testing:
 /* eslint-disable no-console */
-const logValue = (node) => {
-  console.log(node.getValue());
-};
 const testArray = [0, 3, 2, 5, 1, 4, 3, 7, 6, 11];
 const testTree = Tree(testArray);
 testTree.prettyPrint();
-console.log('Inorder Traversal:');
-testTree.inorder(logValue);
-console.log('Preorder Traversal:');
-testTree.preorder(logValue);
-console.log('Postorder Traversal:');
-testTree.postorder(logValue);
-testTree.insert(21);
-testTree.insert(22);
-testTree.insert(20);
-testTree.insert(19);
-testTree.insert(8);
-testTree.insert(8);
-testTree.insert(10);
-testTree.remove(5);
-testTree.insert(9);
-testTree.remove(2);
-testTree.remove(3);
-testTree.remove(7);
-testTree.remove(11);
-testTree.remove(999);
-console.log('\nAfter ammendments:\n');
-testTree.prettyPrint();
-console.log(testTree.find(9).getValue());
-console.log(testTree.find(999));
-console.log('Inorder Traversal:');
-testTree.inorder(logValue);
-console.log('Preorder Traversal:');
-testTree.preorder(logValue);
-console.log('Postorder Traversal:');
-testTree.postorder(logValue);
