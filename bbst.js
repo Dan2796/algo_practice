@@ -102,7 +102,7 @@ function Tree(inputArray) {
         return null;
       }
       if (node.getLeftChild().getValue() === value) {
-        return { found: node.getLeftChild(), parent: node, childIsLeft: true};
+        return { found: node.getLeftChild(), parent: node, childIsLeft: true };
       }
       return findWithParent(value, node.getLeftChild());
     }
@@ -111,7 +111,7 @@ function Tree(inputArray) {
       return null;
     }
     if (node.getRightChild().getValue() === value) {
-      return { found: node.getRightChild(), parent: node, childIsLeft: false};
+      return { found: node.getRightChild(), parent: node, childIsLeft: false };
     }
     return findWithParent(value, node.getRightChild());
   }
@@ -190,6 +190,24 @@ function Tree(inputArray) {
       array.push(nextItem.getValue());
     }
     return array;
+  }
+
+  function levelOrderRecursive(nodeFunction = null, array = [], queue = [root]) {
+    if (queue.length === 0) {
+      return array;
+    }
+    const nextItem = queue.shift();
+    if (nextItem.hasLeftChild()) {
+      queue.push(nextItem.getLeftChild());
+    }
+    if (nextItem.hasRightChild()) {
+      queue.push(nextItem.getRightChild());
+    }
+    if (nodeFunction !== null) {
+      nodeFunction(nextItem);
+    }
+    array.push(nextItem.getValue());
+    return levelOrderRecursive(nodeFunction, array, queue);
   }
 
   function inorder(nodeFunction = null, array = [], node = root) {
@@ -326,6 +344,7 @@ function Tree(inputArray) {
     find,
     findWithParent,
     levelOrder,
+    levelOrderRecursive,
     inorder,
     preorder,
     postorder,
@@ -354,6 +373,7 @@ console.log('Is it balanced?');
 console.log(testTree.isBalanced());
 console.log('Level order:');
 console.log(testTree.levelOrder());
+console.log(testTree.levelOrderRecursive());
 console.log('Inorder:');
 console.log(testTree.inorder());
 console.log('Preorder:');
@@ -374,6 +394,7 @@ console.log('Now balanced?');
 console.log(testTree.isBalanced());
 console.log('Level order:');
 console.log(testTree.levelOrder());
+console.log(testTree.levelOrderRecursive());
 console.log('Inorder:');
 console.log(testTree.inorder());
 console.log('Preorder:');
