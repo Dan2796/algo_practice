@@ -37,7 +37,7 @@ function Tree(inputArray) {
   const sorted = [...new Set(inputArray)].sort((a, b) => (a - b));
 
   function buildTree(array) {
-    if (array.length === 1) return Node(array);
+    if (array.length === 1) return Node(array[0]);
     if (array.length === 2) {
       const root = Node(array[0]);
       root.setRightChild(Node(array[1]));
@@ -114,7 +114,6 @@ function Tree(inputArray) {
   };
   const getNextSmallest = (node) => {
     let smallest = node.getRightChild();
-    //console.log(smallest.getValue());
     while (smallest.hasLeftChild()) {
       smallest = smallest.getLeftChild();
     }
@@ -166,11 +165,34 @@ function Tree(inputArray) {
       nextSmallest.setRightChild(toDelete.getRightChild());
     }
   };
-
-  const levelOrder = (nodeFunction = null) => nodeFunction;
-  const inorder = (nodeFunction = null) => nodeFunction;
-  const preorder = (nodeFunction = null) => nodeFunction;
-  const postorder = (nodeFunction = null) => nodeFunction;
+  const levelOrder = (nodeFunction, node = root) => nodeFunction;
+  const inorder = (nodeFunction, node = root) => {
+    if (node.hasLeftChild()) {
+      inorder(nodeFunction, node.getLeftChild());
+    }
+    nodeFunction(node);
+    if (node.hasRightChild()) {
+      inorder(nodeFunction, node.getRightChild());
+    }
+  };
+  const preorder = (nodeFunction, node = root) => {
+    nodeFunction(node);
+    if (node.hasLeftChild()) {
+      preorder(nodeFunction, node.getLeftChild());
+    }
+    if (node.hasRightChild()) {
+      preorder(nodeFunction, node.getRightChild());
+    }
+  };
+  const postorder = (nodeFunction, node = root) => {
+    if (node.hasLeftChild()) {
+      postorder(nodeFunction, node.getLeftChild());
+    }
+    if (node.hasRightChild()) {
+      postorder(nodeFunction, node.getRightChild());
+    }
+    nodeFunction(node);
+  };
   const height = (node) => node;
   const depth = (node) => node;
   const isBalanced = () => true;
@@ -206,9 +228,20 @@ function Tree(inputArray) {
   };
 }
 
-const testArray = [0, 3, 2, 1, 4, 3, 7, 6, 5, 11];
+// Testing:
+/* eslint-disable no-console */
+const logValue = (node) => {
+  console.log(node.getValue());
+};
+const testArray = [0, 3, 2, 5, 1, 4, 3, 7, 6, 11];
 const testTree = Tree(testArray);
 testTree.prettyPrint();
+console.log('Inorder Traversal:');
+testTree.inorder(logValue);
+console.log('Preorder Traversal:');
+testTree.preorder(logValue);
+console.log('Postorder Traversal:');
+testTree.postorder(logValue);
 testTree.insert(21);
 testTree.insert(22);
 testTree.insert(20);
@@ -216,16 +249,20 @@ testTree.insert(19);
 testTree.insert(8);
 testTree.insert(8);
 testTree.insert(10);
+testTree.remove(5);
 testTree.insert(9);
 testTree.remove(2);
 testTree.remove(3);
 testTree.remove(7);
 testTree.remove(11);
 testTree.remove(999);
-// eslint-disable-next-line no-console
 console.log('\nAfter ammendments:\n');
 testTree.prettyPrint();
-// eslint-disable-next-line no-console
 console.log(testTree.find(9).getValue());
-// eslint-disable-next-line no-console
 console.log(testTree.find(999));
+console.log('Inorder Traversal:');
+testTree.inorder(logValue);
+console.log('Preorder Traversal:');
+testTree.preorder(logValue);
+console.log('Postorder Traversal:');
+testTree.postorder(logValue);
